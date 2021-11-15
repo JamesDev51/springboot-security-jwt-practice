@@ -89,10 +89,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis()+(1000*60*10))) //토큰이 얼마나 유요한지 -> 만료시간 설정
                 .withClaim("id",principalDetails.getUser().getId()) //withClaim -> 내가 넣고싶은 (key-value)
                 .withClaim("username",principalDetails.getUser().getUsername())
-                .sign(Algorithm.HMAC512("cos")); // "cos"가 서버만 아는 secret 값
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET)); // "cos"가 서버만 아는 secret 값
         System.out.println("JWT 토큰 정보 : "+jwtToken);
         //헤더에 Authorization - Bearer (jwt 토큰) 형식으로 담아줌
-        response.addHeader("Authorization","Bearer "+jwtToken);
+        response.addHeader(JwtProperties.HEADER_STRING,JwtProperties.TOKEN_PREFIX+jwtToken);
         System.out.println("successfulAuthentication 종료 : 인증 완료 후 jwt ");
     }
 }

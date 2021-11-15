@@ -23,5 +23,4 @@ public class FilterConfig {
         bean.setOrder(1); //낮은 번호가 필터 중에서 가장 먼저 실행됨.
         return bean;
     }
-
 }

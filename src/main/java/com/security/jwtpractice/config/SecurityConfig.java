@@ -1,7 +1,8 @@
 package com.security.jwtpractice.config;
 
 import com.security.jwtpractice.config.jwt.JwtAuthenticationFilter;
-import com.security.jwtpractice.filter.MyFilter3;
+import com.security.jwtpractice.config.jwt.JwtAuthorizationFilter;
+import com.security.jwtpractice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
 @RequiredArgsConstructor
@@ -18,6 +18,7 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
+    private final UserRepository userRepository;
     @Bean
     public BCryptPasswordEncoder encodePWD(){return new BCryptPasswordEncoder();}
 
@@ -25,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class); //시큐리티 필터 체인에 걸어주는 법
+//        http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class); //시큐리티 필터 체인에 걸어주는 법
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //stateless -> 세션을 사용하지 않겠다.
                 .and()
@@ -33,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable() //form 로그인 사용 안함
                 .httpBasic().disable() //id,pw를 사용한 기본 인증방식을 사용하지 않고 토큰을 사용한 bearer 방식 사용
                 .addFilter(new JwtAuthenticationFilter(authenticationManager())) //authenticationManager를 param으로 줘야함
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository)) //authenticationManager를 param으로 줘야함
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/**")
                 .access("hasRole('ROLE_USER') or  hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
