@@ -8,8 +8,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.security.jwtpractice.config.auth.PrincipalDetails;
+import com.security.jwtpractice.dto.ResponseDto;
 import com.security.jwtpractice.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,10 +20,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -94,7 +99,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         //헤더에 Authorization - Bearer (jwt 토큰) 형식으로 담아줌
         response.addHeader(JwtProperties.HEADER_STRING,JwtProperties.TOKEN_PREFIX+jwtToken);
         System.out.println("successfulAuthentication 종료 : 인증 완료 후 jwt ");
+        System.out.println("==========================");
+
+        Map<String,String> dataMap= new HashMap<>();
+        dataMap.put("url","/user"); //나중에는 원래 있던 곳으로 돌아갈 수 잇게 세션에서  기존 url 받아옴
+        dataMap.put("Authorization",JwtProperties.TOKEN_PREFIX+jwtToken);
+        ObjectMapper mapper= new ObjectMapper(); //JSON에 담을 매퍼
+
+        Cookie cookie = new Cookie(JwtProperties.HEADER_STRING, jwtToken);
+        cookie.setMaxAge(JwtProperties.EXPIRATION_TIME);
+        response.addCookie(cookie);
+        ResponseDto<Map<String,String>> responseDto = new ResponseDto<>(HttpStatus.OK.value(), dataMap);
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().print(mapper.writeValueAsString(responseDto));
+        response.getWriter().flush();
+
+
+
+
+
     }
+
 }
 
 /*

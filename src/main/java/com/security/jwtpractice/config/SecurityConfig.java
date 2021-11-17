@@ -36,6 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthenticationFilter(authenticationManager())) //authenticationManager를 param으로 줘야함
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository)) //authenticationManager를 param으로 줘야함
                 .authorizeRequests()
+                .antMatchers("/user/**")
+                .authenticated()
+                .antMatchers("/admin/**")
+                .access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/api/v1/user/**")
                 .access("hasRole('ROLE_USER') or  hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
                 .antMatchers("/api/v1/manger/**")
