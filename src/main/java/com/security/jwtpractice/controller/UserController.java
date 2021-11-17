@@ -13,7 +13,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final  BCryptPasswordEncoder bCryptPasswordEncoder;
 
-
     @GetMapping("/joinForm")
     public String joinForm(){
         return "joinForm";
@@ -21,17 +20,6 @@ public class UserController {
     @GetMapping("/loginForm")
     public String loginForm(){
         return "loginForm";
-    }
-
-
-
-    @GetMapping("/user")
-    public String user(){
-        return "user";
-    }
-    @GetMapping("/admin")
-    public String admin(){
-        return "admin";
     }
 
 }

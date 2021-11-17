@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 //@CrossOrigin -> 공부하기
 @RestController
@@ -29,11 +28,13 @@ public class RestApiController {
     public String token(){
         return "<h1> token </h1>";
     }
+
     @PostMapping("/join")
     public String joinProc(User user){
-        user.setRoles("ROLE_USER");
-        if (user.getUsername().startsWith("admin_")){
-            user.setRoles("ROLE_USER,ROLE_ADMIN");
+        if(user.getUsername().startsWith("manager_")){
+            user.setRoles("ROLE_USER,ROLE_MANAGER");
+        }else if (user.getUsername().startsWith("admin_")){
+            user.setRoles("ROLE_USER,ROLE_MANAGER,ROLE_ADMIN");
         }else{
             user.setRoles("ROLE_USER");
         }
@@ -49,13 +50,7 @@ public class RestApiController {
     public String user(HttpServletResponse response, Authentication authentication){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         System.out.println("authentication : "+principalDetails.getUsername());
-        String redirect_uri="http://localhost:8080/api/v1/user";
-        try {
-            response.sendRedirect(redirect_uri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "user";
+        return "user 전용 페이지";
     }
 
     //manager,admin 권한만 접근 가능
@@ -67,7 +62,7 @@ public class RestApiController {
     //admin 권한만 접근 가능
     @GetMapping("/api/v1/admin")
     public String admin(){
-        return "admin";
+        return "admin 전용 페이지";
     }
 
 }
