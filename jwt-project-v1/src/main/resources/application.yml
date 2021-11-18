@@ -21,3 +21,10 @@ spring:
   devtools:
     restart:
       enabled: true
+
+jwt:
+  secret: james-secret-key
+  token-prefix: 'Bearer '
+  header-name: 'Authorization'
+  access-token-expire-length: 3600000 #1 hour
+  refresh-token-expire-length: 604800000 #1 week
