@@ -1,0 +1,31 @@
+server :
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/jwt2?serverTimezone=Asia/Seoul
+    username: james
+    password: jms990501
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+  devtools:
+    restart:
+      enabled: true
+
+jwt:
+  secret: james-secret-key
+  issuer: james
+  token-prefix: 'Bearer '
+  header-name: Authorization
+  access-token-expire-length: 3600000 #1 hour
+  refresh-token-expire-length: 604800000 #1 week
