@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class PrincipalDetailsService implements UserDetailsService {
+public class PrincipalDetailsService  implements UserDetailsService {
     private final UserService userService;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

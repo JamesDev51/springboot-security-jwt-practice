@@ -1,10 +1,11 @@
 package com.jamesdev.security.jwtv2.model;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 
-import javax.persistence.*;
-
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,15 +13,10 @@ import javax.persistence.*;
 @Setter
 @Builder
 @Entity
-public class User {
+public class UserOauth {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
+    private String refreshToken;
     private String username;
-    private String password;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private RoleType  role;
-
 }

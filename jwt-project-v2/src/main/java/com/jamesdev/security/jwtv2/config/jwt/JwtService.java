@@ -3,7 +3,6 @@ package com.jamesdev.security.jwtv2.config.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -47,6 +47,7 @@ public class JwtService {
     private long REFRESH_VALIDITY_IN_MILLISECONDS;
 
     private final PrincipalDetailsService principalDetailsService;
+
 
 
     //토큰 생성
@@ -111,12 +112,10 @@ public class JwtService {
             JWTVerifier jwtVerifier = JWT.require(algorithm).withIssuer(ISSUER).build();
             DecodedJWT decodedJWT = jwtVerifier.verify(token);
             return true;
-        }catch(JWTVerificationException e) {
+        } catch(JwtException e) {
             log.error(e.getMessage());
-        }catch(Exception e){
-            log.error(e.getMessage());
+            throw e;
         }
-        return false;
     }
 
     //쿠키 말고 헤더-로컬스토리지로 통신하는 방법
@@ -139,6 +138,7 @@ public class JwtService {
         return  JWT.require(Algorithm.HMAC512(SECRET))
                 .build().verify(rawToken).getClaims();
     }
+
     public String getClaim(String token, String key){
         return this.extractAllClaims(token).get(key).toString();
     }
