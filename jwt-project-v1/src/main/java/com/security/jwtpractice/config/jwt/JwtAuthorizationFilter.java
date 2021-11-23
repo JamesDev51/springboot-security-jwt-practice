@@ -57,7 +57,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             String username =
                     JWT.require(Algorithm.HMAC512(JwtProperties.SECRET))
-                            .build().verify(rawJwtToken)
+                            .build().verify(rawJwtToken).get
                             .getClaim("username")
                             .asString();
 

@@ -4,10 +4,16 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -19,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class JwtService {
     @Value("${jwt.secret}")
@@ -38,6 +45,8 @@ public class JwtService {
 
     @Value("${jwt.refresh-token-expire-length}")
     private long REFRESH_VALIDITY_IN_MILLISECONDS;
+
+    private final PrincipalDetailsService principalDetailsService;
 
 
     //토큰 생성
@@ -119,5 +128,21 @@ public class JwtService {
     public String resolveTokenFromHeader(HttpServletRequest request){
         return request.getHeader(HEADER_NAME);
     }
+
+    public Authentication getAuthentication(String token){
+        UserDetails userDetails = principalDetailsService.loadUserByUsername(this.getClaim(token,"username"));
+        return new UsernamePasswordAuthenticationToken(userDetails, "",userDetails.getAuthorities());
+    }
+
+    public Map<String, Claim> extractAllClaims(String token ){
+        String rawToken=token.replace(TOKEN_PREFIX,"");
+        return  JWT.require(Algorithm.HMAC512(SECRET))
+                .build().verify(rawToken).getClaims();
+    }
+    public String getClaim(String token, String key){
+        return this.extractAllClaims(token).get(key).toString();
+    }
+
+
 
 }
