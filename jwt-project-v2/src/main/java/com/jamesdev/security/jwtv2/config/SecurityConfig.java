@@ -1,5 +1,6 @@
 package com.jamesdev.security.jwtv2.config;
 
+import com.jamesdev.security.jwtv2.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,11 +9,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.filter.CorsFilter;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final CorsFilter corsFilter;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -29,6 +33,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http
+                .headers()
+                .cacheControl().disable()
+                .frameOptions().sameOrigin()
+                .httpStrictTransportSecurity().disable();
+
+        http
                 .authorizeRequests()
                 .antMatchers("/user/**")
                 .authenticated()
@@ -38,6 +48,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .access("hasRole('ROLE_ADMIN')")
                 .anyRequest()
                 .permitAll();
+
+        http
+                .addFilter(corsFilter)
+                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilter(new )
 
 
     }
