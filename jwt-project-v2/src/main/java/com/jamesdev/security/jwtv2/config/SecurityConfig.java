@@ -1,9 +1,12 @@
 package com.jamesdev.security.jwtv2.config;
 
 import com.jamesdev.security.jwtv2.config.jwt.JwtAuthenticationFilter;
+import com.jamesdev.security.jwtv2.config.jwt.JwtService;
+import com.jamesdev.security.jwtv2.service.UserOauthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,6 +20,10 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CorsFilter corsFilter;
+    private  final UserOauthService userOauthService;
+    private  final JwtService jwtService;
+
+
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -51,9 +58,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .addFilter(corsFilter)
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new )
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(),userOauthService,jwtService));
 
+    }
 
+    @Override
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
     }
 }

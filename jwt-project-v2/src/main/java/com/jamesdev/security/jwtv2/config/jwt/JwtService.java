@@ -5,14 +5,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +41,6 @@ public class JwtService {
 
     @Value("${jwt.refresh-token-expire-length}")
     private long REFRESH_VALIDITY_IN_MILLISECONDS;
-
-    private final PrincipalDetailsService principalDetailsService;
 
 
 
@@ -118,6 +112,9 @@ public class JwtService {
         }
     }
 
+
+
+
     //쿠키 말고 헤더-로컬스토리지로 통신하는 방법
     //토큰을 헤더에 저장
     public void saveTokenToHeader(HttpServletResponse response, String token){
@@ -128,10 +125,7 @@ public class JwtService {
         return request.getHeader(HEADER_NAME);
     }
 
-    public Authentication getAuthentication(String token){
-        UserDetails userDetails = principalDetailsService.loadUserByUsername(this.getClaim(token,"username"));
-        return new UsernamePasswordAuthenticationToken(userDetails, "",userDetails.getAuthorities());
-    }
+
 
     public Map<String, Claim> extractAllClaims(String token ){
         String rawToken=token.replace(TOKEN_PREFIX,"");

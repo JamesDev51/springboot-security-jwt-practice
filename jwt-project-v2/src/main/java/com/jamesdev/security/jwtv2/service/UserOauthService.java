@@ -5,11 +5,13 @@ import com.jamesdev.security.jwtv2.model.UserOauth;
 import com.jamesdev.security.jwtv2.repository.UserOauthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 public class UserOauthService {
     private final UserOauthRepository userOauthRepository;
+    @Transactional
     public void deleteUserOauth(String username){
         userOauthRepository.deleteByUsername(username);
     }

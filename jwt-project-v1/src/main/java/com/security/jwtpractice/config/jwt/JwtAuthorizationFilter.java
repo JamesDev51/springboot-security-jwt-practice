@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-    private  UserRepository userRepository;
+    private  final UserRepository userRepository;
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
         super(authenticationManager);
         this.userRepository=userRepository;
