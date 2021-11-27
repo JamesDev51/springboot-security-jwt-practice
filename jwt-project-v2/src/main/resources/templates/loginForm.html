@@ -36,7 +36,7 @@
             data:JSON.stringify(data)
         }).done(function(res){
             console.log(res)
-            location.href="/api/v1/user"
+            location.href=res.data.url
         }).fail(function (e){
             console.log(e)
         })

@@ -1,12 +1,11 @@
 package com.jamesdev.security.jwtv2.config.jwt;
 
-import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
-import com.jamesdev.security.jwtv2.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -20,13 +19,15 @@ import java.io.IOException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userService;
-    private final PrincipalDetailsService principalDetailsService;
+//    private final UserService userService;
+    private final UserDetailsService principalDetailsService;
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = jwtService.resolveCookie(request);
         String refreshToken = null;
-
+        System.out.println("authorization filter");
         //access 토큰 검증
 //        try{
 //            if(StringUtils.isNotBlank(accessToken) && jwtService.validateToken(accessToken)){
