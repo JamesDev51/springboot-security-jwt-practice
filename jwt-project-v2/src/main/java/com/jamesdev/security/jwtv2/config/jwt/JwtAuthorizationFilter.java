@@ -1,5 +1,6 @@
 package com.jamesdev.security.jwtv2.config.jwt;
 
+import com.jamesdev.security.jwtv2.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +20,7 @@ import java.io.IOException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-//    private final UserService userService;
+    private final UserService userService;
     private final UserDetailsService principalDetailsService;
 
 

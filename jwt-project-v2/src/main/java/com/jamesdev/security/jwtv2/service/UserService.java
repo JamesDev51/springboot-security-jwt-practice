@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class UserService {
+
+
+
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
     public void registerUser(UserDto userDto){
         String username=userDto.getUsername();
         String rawPassword=userDto.getPassword();
