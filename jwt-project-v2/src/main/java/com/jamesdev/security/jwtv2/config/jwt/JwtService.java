@@ -72,7 +72,7 @@ public class JwtService {
                 .withIssuer(ISSUER)
                 .withIssuedAt(now)
                 .withExpiresAt(expirationDate)
-                .withHeader(claims)
+                .withClaim("username", claims.get("username").toString())
                 .sign(Algorithm.HMAC512(SECRET));
     }
 
@@ -129,16 +129,27 @@ public class JwtService {
 
 
 
+//    public Authentication getAuthentication(String token) {
+//        UserDetails userDetails = loginService.loadUserByUsername(this.getClaims(token, "sub"));
+//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+//    }
+
+
     public Map<String, Claim> extractAllClaims(String token ){
-        String rawToken=token.replace(TOKEN_PREFIX,"");
+//        String rawToken=token.replace(TOKEN_PREFIX,"");
         return  JWT.require(Algorithm.HMAC512(SECRET))
-                .build().verify(rawToken).getClaims();
+                .build().verify(token).getClaims();
     }
 
     public String getClaim(String token, String key){
-        return this.extractAllClaims(token).get(key).toString();
+        return this.extractAllClaims(token).get(key).toString().replaceAll("\"", "");
     }
 
-
-
 }
+
+/**
+ *                     JWT.require(Algorithm.HMAC512(JwtProperties.SECRET))
+ *                             .build().verify(rawJwtToken)
+ *                             .getClaim("username")
+ *                             .asString();
+ */

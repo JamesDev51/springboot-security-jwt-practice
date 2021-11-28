@@ -5,6 +5,7 @@ import com.jamesdev.security.jwtv2.model.RoleType;
 import com.jamesdev.security.jwtv2.model.User;
 import com.jamesdev.security.jwtv2.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +13,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-
+@Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return this.bCryptPasswordEncoder;
+    }
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
+
+    public final BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
     public void registerUser(UserDto userDto){
         String username=userDto.getUsername();
         String rawPassword=userDto.getPassword();

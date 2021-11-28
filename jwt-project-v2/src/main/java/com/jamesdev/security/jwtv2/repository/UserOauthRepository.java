@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface UserOauthRepository extends JpaRepository<UserOauth,Long> {
     @Modifying
     @Query("delete from UserOauth  where username = ?1")
-    int deleteByUsername(String username);
+    void deleteByUsername(String username);
+    UserOauth findByUsername(String username);
 
 }

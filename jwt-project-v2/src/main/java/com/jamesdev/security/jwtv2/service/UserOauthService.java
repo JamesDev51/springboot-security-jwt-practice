@@ -19,4 +19,7 @@ public class UserOauthService {
         UserOauth userOauth = UserOauth.builder().refreshToken(jwtModel.getRefreshToken()).username(username).build();
         userOauthRepository.save(userOauth);
     }
+    public UserOauth findUserOauthByUsername(String username){
+        return userOauthRepository.findByUsername(username);
+    }
 }

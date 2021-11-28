@@ -1,5 +1,6 @@
 package com.jamesdev.security.jwtv2.config;
 
+import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
 import com.jamesdev.security.jwtv2.config.jwt.JwtAuthenticationFilter;
 import com.jamesdev.security.jwtv2.config.jwt.JwtAuthorizationFilter;
 import com.jamesdev.security.jwtv2.config.jwt.JwtService;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private  final UserOauthService userOauthService;
     private  final JwtService jwtService;
     private  final UserService userService;
+    private final PrincipalDetailsService principalDetailsService;
 
 //    @Bean
 //    public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -58,9 +59,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll();
 
         http
+                .logout()
+                .logoutUrl("/logout")
+                .deleteCookies(jwtService.getHEADER_NAME())
+                .logoutSuccessUrl("/loginForm")
+                .invalidateHttpSession(true);
+
+        http
                 .addFilter(corsFilter)
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(),userOauthService,jwtService))
-                .addFilterBefore(new JwtAuthorizationFilter(jwtService,userService,userDetailsService()), UsernamePasswordAuthenticationFilter.class);
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(),jwtService,userService,userOauthService,principalDetailsService));
 
 
     }
