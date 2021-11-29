@@ -1,7 +1,7 @@
 package com.jamesdev.security.jwtv2.config.jwt;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
-import com.jamesdev.security.jwtv2.model.User;
 import com.jamesdev.security.jwtv2.service.UserOauthService;
 import com.jamesdev.security.jwtv2.service.UserService;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -51,9 +50,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 System.out.println("세션 추가");
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }//access 토큰만료시 refresh 토큰 가져오기
-        }catch(JwtException e){
-
-            User user = userService.findUserByUsername("");
+            //TODO : 리프레시 토큰 가져와서 검증하기 & ACCESS 토큰 새로 발급해주기
+        }catch(TokenExpiredException e){
+            System.out.println("access 토큰 만료됨");
+            String username = jwtService.getClaimFromExpiredToken(accessToken,"username");
+            System.out.println("username : "+username);
         }
 
         filterChain.doFilter(request,response);

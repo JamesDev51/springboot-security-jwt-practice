@@ -69,10 +69,10 @@ public class JwtService {
     public String generateToken(Map<String, Object> claims, Date now, Date expirationDate){
         return JWT.create()
                 .withSubject("james-jwt-token")
+                .withClaim("username", claims.get("username").toString())
                 .withIssuer(ISSUER)
                 .withIssuedAt(now)
                 .withExpiresAt(expirationDate)
-                .withClaim("username", claims.get("username").toString())
                 .sign(Algorithm.HMAC512(SECRET));
     }
 
@@ -103,7 +103,7 @@ public class JwtService {
     //토큰 검증
     public boolean validateToken(String token){
         try{
-            String rawToken=token.replace(TOKEN_PREFIX,"");
+//            String rawToken=token.replace(TOKEN_PREFIX,"");
             Algorithm algorithm = Algorithm.HMAC512(SECRET);
             JWTVerifier jwtVerifier = JWT.require(algorithm).withIssuer(ISSUER).build();
             DecodedJWT decodedJWT = jwtVerifier.verify(token);
@@ -143,6 +143,10 @@ public class JwtService {
 
     public String getClaim(String token, String key){
         return this.extractAllClaims(token).get(key).toString().replaceAll("\"", "");
+    }
+
+    public String getClaimFromExpiredToken(String token,String key){
+        return JWT.decode(token).getClaim(key).toString();
     }
 
 }
