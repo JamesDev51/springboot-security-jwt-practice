@@ -2,6 +2,7 @@ package com.jamesdev.security.jwtv2.config.jwt;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.jamesdev.security.jwtv2.config.auth.PrincipalDetailsService;
+import com.jamesdev.security.jwtv2.model.UserOauth;
 import com.jamesdev.security.jwtv2.service.UserOauthService;
 import com.jamesdev.security.jwtv2.service.UserService;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -41,6 +43,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         System.out.println("JwtAuthorizationFilter 시작");
         String accessToken = jwtService.resolveCookie(request);
         String refreshToken = null;
+        String username=null;
         System.out.println("accessToken : "+accessToken);
         //access 토큰 검증
         try{
@@ -53,8 +56,39 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             //TODO : 리프레시 토큰 가져와서 검증하기 & ACCESS 토큰 새로 발급해주기
         }catch(TokenExpiredException e){
             System.out.println("access 토큰 만료됨");
-            String username = jwtService.getClaimFromExpiredToken(accessToken,"username");
+            username = jwtService.getClaimFromExpiredToken(accessToken,"username"); //만료된  토큰에서 유저네임 클레임 추출
             System.out.println("username : "+username);
+            UserOauth userOauth = userOauthService.findUserOauthByUsername(username);
+            if(!ObjectUtils.isEmpty(userOauth)){
+                refreshToken =userOauth.getRefreshToken(); //db에서 유저네임으로 리프레시 토큰 가져오기
+                System.out.println("refreshToken : "+refreshToken);
+            }
+        }catch(Exception e){
+            SecurityContextHolder.clearContext();
+            System.out.println("JwtAuthorizationFilter internal error "+ e.getMessage());
+            return;
+        }
+        //refresh 토큰으로 access 토큰 발급
+        if(StringUtils.isNotBlank(refreshToken)){
+            try{
+                try{
+                    if(jwtService.validateToken(refreshToken)){
+                        Authentication auth = this.getAuthentication(refreshToken);
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+
+                        //새로운 accessToken 발급
+                        String newAccessToken = jwtService.createToken(username).getAccessToken();
+                        //쿠키에 넣어줌
+                        jwtService.createCookie(response, newAccessToken);
+                    }
+                }catch(TokenExpiredException e){
+                    System.out.println("JWT token expired : "+e.getMessage());
+                }
+            }catch(Exception e){
+                SecurityContextHolder.clearContext();
+                System.out.println("JwtAuthorizationFilter internal error "+ e.getMessage());
+                return;
+            }
         }
 
         filterChain.doFilter(request,response);

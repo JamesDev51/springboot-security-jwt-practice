@@ -146,7 +146,7 @@ public class JwtService {
     }
 
     public String getClaimFromExpiredToken(String token,String key){
-        return JWT.decode(token).getClaim(key).toString();
+        return JWT.decode(token).getClaim(key).toString().replaceAll("\"", "");
     }
 
 }
