@@ -26,6 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class JwtService {
+    /*  (1)  */
     @Value("${jwt.secret}")
     private String SECRET;
 
@@ -45,7 +46,7 @@ public class JwtService {
     private long REFRESH_VALIDITY_IN_MILLISECONDS;
 
 
-
+    /*  (2)  */
     //토큰 생성
     public JwtModel createToken(String username){
         Map<String,Object> claims=new HashMap<>();
@@ -65,6 +66,7 @@ public class JwtService {
                 .build();
     }
 
+    /*  (3)  */
     //토큰 발급
     public String generateToken(Map<String, Object> claims, Date now, Date expirationDate){
         return JWT.create()
@@ -76,6 +78,7 @@ public class JwtService {
                 .sign(Algorithm.HMAC512(SECRET));
     }
 
+    /*  (4)  */
     //쿠키에 jwt 토큰을 태워보냄
     public void createCookie(HttpServletResponse response, String token) {
         ResponseCookie cookie =
@@ -88,6 +91,7 @@ public class JwtService {
         response.addHeader("Set-Cookie",cookie.toString());
     }
 
+    /*  (5)  */
     //쿠키에 있는 토큰을 찾아봄
     public String resolveCookie(HttpServletRequest request){
         final Cookie[] cookies = request.getCookies(); //쿠키 가져와서
@@ -100,6 +104,7 @@ public class JwtService {
         return null;
     }
 
+    /*  (6)  */
     //토큰 검증
     public boolean validateToken(String token){
         try{
@@ -114,37 +119,38 @@ public class JwtService {
         }
     }
 
-
-
-
+    /*  (7)  */
     //쿠키 말고 헤더-로컬스토리지로 통신하는 방법
     //토큰을 헤더에 저장
     public void saveTokenToHeader(HttpServletResponse response, String token){
         response.setHeader(HEADER_NAME, token);
     }
+
+    /*  (8)  */
     //헤더에서 토큰 가져오기
     public String resolveTokenFromHeader(HttpServletRequest request){
         return request.getHeader(HEADER_NAME);
     }
 
-
-
+    /*  (9)  */
 //    public Authentication getAuthentication(String token) {
 //        UserDetails userDetails = loginService.loadUserByUsername(this.getClaims(token, "sub"));
 //        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 //    }
 
-
+    /*  (10)  */
     public Map<String, Claim> extractAllClaims(String token ){
 //        String rawToken=token.replace(TOKEN_PREFIX,"");
         return  JWT.require(Algorithm.HMAC512(SECRET))
                 .build().verify(token).getClaims();
     }
 
+    /*  (11)  */
     public String getClaim(String token, String key){
         return this.extractAllClaims(token).get(key).toString().replaceAll("\"", "");
     }
 
+    /*  (12)  */
     public String getClaimFromExpiredToken(String token,String key){
         return JWT.decode(token).getClaim(key).toString().replaceAll("\"", "");
     }

@@ -13,9 +13,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.CorsFilter;
-
+/*  (1)  */
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
@@ -27,26 +26,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private  final UserService userService;
     private final PrincipalDetailsService principalDetailsService;
 
-//    @Bean
-//    public BCryptPasswordEncoder bCryptPasswordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
-
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        /*  (2)  */
         http
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        /*  (3)  */
         http
                 .headers()
                 .cacheControl().disable()
+                .contentTypeOptions().disable()
                 .frameOptions().sameOrigin()
-                .httpStrictTransportSecurity().disable();
+                .httpStrictTransportSecurity().disable()
+                .xssProtection().disable();
 
+        /*  (4)  */
         http
                 .authorizeRequests()
                 .antMatchers("/user/**")
@@ -58,6 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .permitAll();
 
+        /*  (5)  */
         http
                 .logout()
                 .logoutUrl("/logout")
@@ -65,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/loginForm")
                 .invalidateHttpSession(true);
 
+        /*  (6)  */
         http
                 .addFilter(corsFilter)
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(),userOauthService,jwtService))
@@ -73,14 +73,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+    /*  (7)  */
     @Override
     protected AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
-
-    @Override
-    protected UserDetailsService userDetailsService() {
-        return super.userDetailsService();
-    }
-
 }
