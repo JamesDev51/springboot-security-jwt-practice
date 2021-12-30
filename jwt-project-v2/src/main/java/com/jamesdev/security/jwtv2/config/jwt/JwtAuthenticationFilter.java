@@ -31,6 +31,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private  final UserOauthService userOauthService;
     private  final JwtService jwtService;
 
+    /*   (1)   */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         System.out.println("================================");
@@ -38,13 +39,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         ObjectMapper om = new ObjectMapper();
         try{
             System.out.println("id, pw json 파싱");
+
             UserDto userDto = om.readValue(request.getInputStream(),UserDto.class);
             System.out.println("User Dto : "+ userDto);
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDto.getUsername(),userDto.getPassword());
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
             System.out.println("로그인 성공");
@@ -60,6 +62,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return null;
     }
 
+
+    /*   (2)   */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("==============================");

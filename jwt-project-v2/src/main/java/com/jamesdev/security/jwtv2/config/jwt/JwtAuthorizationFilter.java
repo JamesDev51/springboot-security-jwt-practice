@@ -24,27 +24,31 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtService jwtService, UserService userService,  UserOauthService userOauthService,PrincipalDetailsService principalDetailsService) {
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserService userService,JwtService jwtService, UserOauthService userOauthService,PrincipalDetailsService principalDetailsService) {
         super(authenticationManager);
         this.jwtService = jwtService;
-        this.userService = userService;
+        this.userService=userService;
         this.userOauthService = userOauthService;
         this.principalDetailsService=principalDetailsService;
     }
 
     private final JwtService jwtService;
-    private final UserService userService;
     private final UserOauthService userOauthService;
     private final PrincipalDetailsService principalDetailsService;
+    private final UserService userService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("=====================================");
         System.out.println("JwtAuthorizationFilter 시작");
+        /*    (1)   */
         String accessToken = jwtService.resolveCookie(request);
         String refreshToken = null;
         String username=null;
         System.out.println("accessToken : "+accessToken);
+        /*    (2)   */
         //access 토큰 검증
         try{
             if(StringUtils.isNotBlank(accessToken) && jwtService.validateToken(accessToken)){
@@ -54,6 +58,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }//access 토큰만료시 refresh 토큰 가져오기
             //TODO : 리프레시 토큰 가져와서 검증하기 & ACCESS 토큰 새로 발급해주기
+        /*    (3)   */
         }catch(TokenExpiredException e){
             System.out.println("access 토큰 만료됨");
             username = jwtService.getClaimFromExpiredToken(accessToken,"username"); //만료된  토큰에서 유저네임 클레임 추출
@@ -68,6 +73,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             System.out.println("JwtAuthorizationFilter internal error "+ e.getMessage());
             return;
         }
+        /*    (4)   */
         //refresh 토큰으로 access 토큰 발급
         if(StringUtils.isNotBlank(refreshToken)){
             try{
@@ -94,7 +100,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         filterChain.doFilter(request,response);
     }
 
-
+    /*    (5)   */
     public Authentication getAuthentication(String token){
         String username=jwtService.getClaim(token,"username");
         UserDetails userDetails = principalDetailsService.loadUserByUsername(username);
